@@ -1,0 +1,11 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ipa-cert-operator
+subjects:
+- kind: ServiceAccount
+  name: ipa-cert-operator
+roleRef:
+  kind: Role
+  name: ipa-cert-operator
+  apiGroup: rbac.authorization.k8s.io
