@@ -1,0 +1,7 @@
+apiVersion: patrickeasters.com/v1alpha1
+kind: IpaClientCert
+metadata:
+  name: example-ipaclientcert
+spec:
+  # Add fields here
+  size: 3
