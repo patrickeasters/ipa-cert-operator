@@ -39,9 +39,8 @@ rules:
   - get
   - create
 - apiGroups:
-  - patrickeasters.com
+  - cert.patrickeasters.com
   resources:
   - '*'
-  - ipaclientcerts
   verbs:
   - '*'

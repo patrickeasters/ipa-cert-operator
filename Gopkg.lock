@@ -61,6 +61,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:331fe4e4cee05255c0079e18a9e043c446742c47a64ea00ce859048e2ee768c9"
+  name = "github.com/go-ini/ini"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "a9da9309fb4822643ceebb765f80025c35ac19a1"
+  version = "v1.40.0"
+
+[[projects]]
   branch = "master"
   digest = "1:d421af4c4fe51d399667d573982d663fe1fa67020a88d3ae43466ebfe8e2b5c9"
   name = "github.com/go-logr/logr"
@@ -158,6 +166,19 @@
   revision = "4030bb1f1f0c35b30ca7009e9ebd06849dd45306"
 
 [[projects]]
+  digest = "1:2ddc4fb22e0f7c7f6ce615f8b453aeb1c7d0eec746c1a5a62244363e1a836462"
+  name = "github.com/google/go-cmp"
+  packages = [
+    "cmp",
+    "cmp/internal/diff",
+    "cmp/internal/function",
+    "cmp/internal/value",
+  ]
+  pruneopts = "NT"
+  revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
+  version = "v0.2.0"
+
+[[projects]]
   branch = "master"
   digest = "1:52c5834e2bebac9030c97cc0798ac11c3aa8a39f098aeb419f142533da6cd3cc"
   name = "github.com/google/gofuzz"
@@ -197,6 +218,14 @@
   revision = "c63ab54fda8f77302f8d414e19933f2b6026a089"
 
 [[projects]]
+  digest = "1:6c1c337aab3268149ef3fe6256dc79cc1abffa2269d3b222d00913956f317328"
+  name = "github.com/hashicorp/go-uuid"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "de160f5c59f693fed329e73e291bb751fe4ea4dc"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:b42cde0e1f3c816dd57f57f7bbcf05ca40263ad96f168714c130c611fc0856a6"
   name = "github.com/hashicorp/golang-lru"
   packages = [
@@ -214,6 +243,17 @@
   pruneopts = "NT"
   revision = "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4"
   version = "v0.3.6"
+
+[[projects]]
+  branch = "master"
+  digest = "1:efc693dbcbe885796a3d46bd1817646d713996bcc2893d42f5434141afc1a86f"
+  name = "github.com/jcmturner/gofork"
+  packages = [
+    "encoding/asn1",
+    "x/crypto/pbkdf2",
+  ]
+  pruneopts = "NT"
+  revision = "2aebee971930cd0dd525873330952ab7df5ac95c"
 
 [[projects]]
   digest = "1:1d39c063244ad17c4b18e8da1551163b6ffb52bd1640a49a8ec5c3b7bf4dbd5d"
@@ -287,6 +327,14 @@
   ]
   pruneopts = "NT"
   revision = "94d42526a13ea44d5721cdcfdd773b233f93cee3"
+
+[[projects]]
+  digest = "1:d9968d60bb86c9bea52d2dc1146af0022730d4291616fe032fee65f1233c4972"
+  name = "github.com/patrickeasters/goipa"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "88618d755a74bd8ea33b047ecac6248c4f646068"
+  version = "v0.0.1"
 
 [[projects]]
   digest = "1:93b1d84c5fa6d1ea52f4114c37714cddd84d5b78f151b62bb101128dd51399bf"
@@ -400,7 +448,11 @@
   branch = "master"
   digest = "1:d6d3b59b8c4ceb6a7db2f20169719e57a8dcfa2c055b4418feb3fcc7bbd1a936"
   name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  packages = [
+    "md4",
+    "pbkdf2",
+    "ssh/terminal",
+  ]
   pruneopts = "NT"
   revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
 
@@ -522,6 +574,72 @@
   pruneopts = "NT"
   revision = "d2d2541c53f18d2a059457998ce2876cc8e67cbf"
   version = "v0.9.1"
+
+[[projects]]
+  digest = "1:fea88a1a5c4cf1101d2e0f9d985ad996a1e1dfd4f3df948e12fcf7cf2baf23dc"
+  name = "gopkg.in/jcmturner/aescts.v1"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "f6abebb3171c4c1b1fea279cb7c7325020a26290"
+  version = "v1.0.1"
+
+[[projects]]
+  digest = "1:807e17e89614e6af666dc08855a88e5f1e3c54afb73c10d4b9d28f3b8f48c63c"
+  name = "gopkg.in/jcmturner/dnsutils.v1"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "13eeb8d49ffb74d7a75784c35e4d900607a3943c"
+  version = "v1.0.1"
+
+[[projects]]
+  digest = "1:076a7acabbc736a630cad7c44595ce0520110a781f6160021d93f28aa3fb5c65"
+  name = "gopkg.in/jcmturner/gokrb5.v6"
+  packages = [
+    "asn1tools",
+    "client",
+    "config",
+    "credentials",
+    "crypto",
+    "crypto/common",
+    "crypto/etype",
+    "crypto/rfc3961",
+    "crypto/rfc3962",
+    "crypto/rfc4757",
+    "crypto/rfc8009",
+    "gssapi",
+    "iana",
+    "iana/addrtype",
+    "iana/adtype",
+    "iana/asnAppTag",
+    "iana/chksumtype",
+    "iana/errorcode",
+    "iana/etypeID",
+    "iana/flags",
+    "iana/keyusage",
+    "iana/msgtype",
+    "iana/nametype",
+    "iana/patype",
+    "kadmin",
+    "keytab",
+    "krberror",
+    "messages",
+    "pac",
+    "types",
+  ]
+  pruneopts = "NT"
+  revision = "f0f111413e04d9190fd676ca01bc064a47896d96"
+  version = "v6.1.1"
+
+[[projects]]
+  digest = "1:5ac7c04b890c49aabbbd5d149b513d580a2fdfe970cc80018d68fef06e4cc227"
+  name = "gopkg.in/jcmturner/rpc.v1"
+  packages = [
+    "mstypes",
+    "ndr",
+  ]
+  pruneopts = "NT"
+  revision = "99a8ce2fbf8b8087b6ed12a37c61b10f04070043"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
@@ -810,11 +928,13 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/google/go-cmp/cmp",
     "github.com/openshift/api/route/v1",
     "github.com/operator-framework/operator-sdk/pkg/k8sutil",
     "github.com/operator-framework/operator-sdk/pkg/leader",
     "github.com/operator-framework/operator-sdk/pkg/ready",
     "github.com/operator-framework/operator-sdk/version",
+    "github.com/patrickeasters/goipa",
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",

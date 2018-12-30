@@ -13,6 +13,7 @@ import (
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/patrickeasters/ipa-cert-operator/pkg/apis"
 	"github.com/patrickeasters/ipa-cert-operator/pkg/controller"
+	"github.com/patrickeasters/ipa-cert-operator/pkg/settings"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -51,6 +52,9 @@ func main() {
 		log.Error(err, "")
 		os.Exit(1)
 	}
+
+	// Load settings for ipa-cert-operator
+	settings.ParseSettings()
 
 	// Become the leader before proceeding
 	leader.Become(context.TODO(), "ipa-cert-operator-lock")

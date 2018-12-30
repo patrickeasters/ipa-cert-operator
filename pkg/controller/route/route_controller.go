@@ -21,6 +21,9 @@ import (
 
 var log = logf.Log.WithName("controller_route")
 
+const ROUTE_IPA_MANAGED = "cert.patrickeasters.com/ipa-managed"
+const ROUTE_IPA_STATUS = "cert.patrickeasters.com/ipa-status"
+
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
 * business logic.  Delete these comments after modifying this file.*
@@ -87,6 +90,11 @@ func (r *ReconcileRoute) Reconcile(request reconcile.Request) (reconcile.Result,
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
+	}
+
+	if instance.ObjectMeta.Annotations == nil || instance.ObjectMeta.Annotations[ROUTE_IPA_STATUS] != "true" {
+		// Route is not associated with an IPA cert, so we don't need to do anything else
+		return reconcile.Result{}, nil
 	}
 
 	// Define a new Pod object
