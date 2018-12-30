@@ -3,6 +3,7 @@ package settings
 import (
 	"io/ioutil"
 	"os"
+	"time"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
@@ -15,6 +16,7 @@ type Settings struct {
 	CertProfileHost string
 	CertProfileUser string
 	CaChain         string
+	RequeuePeriod   time.Duration
 }
 
 var Instance Settings
@@ -36,6 +38,11 @@ func ParseSettings() {
 	Instance.CertProfileUser, ok = os.LookupEnv("CERT_PROFILE_USER")
 	if !ok {
 		Instance.CertProfileUser = "IECUserRoles"
+	}
+
+	Instance.RequeuePeriod, _ = time.ParseDuration(os.Getenv("REQUEUE_PERIOD"))
+	if Instance.RequeuePeriod.Seconds() < 30 {
+		Instance.RequeuePeriod = 6 * time.Hour
 	}
 
 	chain_file, ok := os.LookupEnv("CA_CHAIN_FILE")

@@ -27,10 +27,6 @@ import (
 
 var log = logf.Log.WithName("controller_ipacert")
 
-// Interval to re-reconcile a resource
-//const ReconcilePeriod = time.Hour * 6
-const ReconcilePeriod = time.Minute * 1
-
 // Add creates a new IpaCert Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
@@ -112,9 +108,7 @@ func (r *ReconcileIpaCert) Reconcile(request reconcile.Request) (reconcile.Resul
 		secret, err := newSecretForCR(secretName, instance)
 		if err != nil {
 			// Update status on CR and return an error
-			instance.Status = errorStatus(err)
-			r.client.Status().Update(context.TODO(), instance)
-			return reconcile.Result{}, err
+			return r.returnError(instance, err)
 		}
 
 		// Set IpaCert instance as the owner and controller
@@ -126,9 +120,7 @@ func (r *ReconcileIpaCert) Reconcile(request reconcile.Request) (reconcile.Resul
 		err = r.client.Create(context.TODO(), secret)
 		if err != nil {
 			// Update status on CR and return an error
-			instance.Status = errorStatus(err)
-			r.client.Status().Update(context.TODO(), instance)
-			return reconcile.Result{}, err
+			return r.returnError(instance, err)
 		}
 		// Secret created successfully - return and requeue
 		return reconcile.Result{Requeue: true}, nil
@@ -148,7 +140,21 @@ func (r *ReconcileIpaCert) Reconcile(request reconcile.Request) (reconcile.Resul
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("Secret %s deleted due to unreadable cert: %s", found.Name, err)
 	}
-	// Update status if needed
+
+	// Let's check and see if the cert is outdated or expiring soon
+	switch {
+	case instance.Spec.Cn != instance.Status.CertData.Cn:
+		reqLogger.Info("Re-issuing cert with updated CN")
+		return r.renewCert(instance, found)
+	case !containsNames(instance.Spec.AdditionalNames, instance.Status.CertData.DnsNames):
+		reqLogger.Info("Re-issuing cert with updated SANs")
+		return r.renewCert(instance, found)
+	case time.Now().After(instance.Status.CertData.Expiry.Add(-2 * time.Minute)):
+		reqLogger.Info("Renewing cert because it expires soon.")
+		return r.renewCert(instance, found)
+	}
+
+	// If nothing else, let's update status and check back later
 	newStatus := certv1alpha1.IpaCertStatus{
 		Status:   "ok",
 		CertData: *secretStatus,
@@ -158,48 +164,8 @@ func (r *ReconcileIpaCert) Reconcile(request reconcile.Request) (reconcile.Resul
 		instance.Status = newStatus
 		r.client.Status().Update(context.TODO(), instance)
 	}
-
-	// Let's check and see if the cert is outdated or expiring soon
-	toRenew := true
-	switch {
-	case instance.Spec.Cn != instance.Status.CertData.Cn:
-		reqLogger.Info("Cert cn does not match spec.")
-	case !containsNames(instance.Spec.AdditionalNames, instance.Status.CertData.DnsNames):
-		reqLogger.Info("Cert SANs do not match spec.")
-	case time.Now().After(instance.Status.CertData.Expiry.Add(-2 * time.Minute)):
-		reqLogger.Info("Cert is expiring soon and needs to be renewed.")
-	default:
-		toRenew = false
-	}
-
-	if toRenew {
-		// Re-issue cert
-		cert, key, err := issueCert(instance)
-		if err != nil {
-			// Update status on CR and return an error
-			instance.Status = errorStatus(err)
-			r.client.Status().Update(context.TODO(), instance)
-			return reconcile.Result{}, err
-		}
-
-		// Update existing secret
-		found.Data["tls.crt"] = []byte(cert)
-		found.Data["tls.key"] = []byte(key)
-		err = r.client.Update(context.TODO(), found)
-		if err != nil {
-			// Update status on CR and return an error
-			instance.Status = errorStatus(err)
-			r.client.Status().Update(context.TODO(), instance)
-			return reconcile.Result{}, err
-		}
-		// Secret updated successfully - return and requeue
-		reqLogger.Info("Cert successfully renewed.")
-		return reconcile.Result{Requeue: true}, nil
-	}
-
-	// If nothing else, let's check back later
 	reqLogger.Info("Cert looks good. Nothing else to do here")
-	return reconcile.Result{RequeueAfter: ReconcilePeriod}, nil
+	return reconcile.Result{RequeueAfter: settings.Instance.RequeuePeriod}, nil
 }
 
 // newSecretForCR requests a cert and generates a secret based on it
@@ -226,6 +192,7 @@ func newSecretForCR(name string, cr *certv1alpha1.IpaCert) (*corev1.Secret, erro
 	return secret, nil
 }
 
+// Get new cert from IPA
 func issueCert(cr *certv1alpha1.IpaCert) (string, string, error) {
 	// We support either a host or user principal
 	principalType := cr.Spec.PrincipalType
@@ -255,15 +222,43 @@ func issueCert(cr *certv1alpha1.IpaCert) (string, string, error) {
 	return cert, key, nil
 }
 
-func errorStatus(err error) certv1alpha1.IpaCertStatus {
-	return certv1alpha1.IpaCertStatus{
-		Status:       "error",
-		StatusReason: err.Error(),
-		CertData:     certv1alpha1.IpaCertData{},
+// Renew existing certificate and end reconciliation
+func (r *ReconcileIpaCert) renewCert(cr *certv1alpha1.IpaCert, secret *corev1.Secret) (reconcile.Result, error) {
+	cert, key, err := issueCert(cr)
+	if err != nil {
+		// Update status on CR and return an error
+		return r.returnError(cr, err)
 	}
+
+	// Update existing secret
+	secret.Data["tls.crt"] = []byte(cert)
+	secret.Data["tls.key"] = []byte(key)
+	err = r.client.Update(context.TODO(), secret)
+	if err != nil {
+		// Update status on CR and return an error
+		return r.returnError(cr, err)
+	}
+
+	// Secret updated successfully
+	return reconcile.Result{}, nil
 }
 
-// ensures all additional SANs are present in SAN slice
+// Return an error and update CR status with details
+func (r *ReconcileIpaCert) returnError(cr *certv1alpha1.IpaCert, err error) (reconcile.Result, error) {
+	newStatus := certv1alpha1.IpaCertStatus{
+		Status:       "error",
+		StatusReason: err.Error(),
+		CertData:     cr.Status.CertData,
+	}
+	// Only update status if it's different to avoid a reconciliation loop
+	if !cmp.Equal(newStatus, cr) {
+		cr.Status = newStatus
+		r.client.Status().Update(context.TODO(), cr)
+	}
+	return reconcile.Result{}, err
+}
+
+// Ensures all additional SANs are present in SAN slice
 func containsNames(sub, super []string) bool {
 	for _, i := range sub {
 		for _, j := range super {
