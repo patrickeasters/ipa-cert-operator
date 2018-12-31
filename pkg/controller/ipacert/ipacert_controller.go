@@ -146,7 +146,7 @@ func (r *ReconcileIpaCert) Reconcile(request reconcile.Request) (reconcile.Resul
 	case instance.Spec.Cn != secretStatus.Cn:
 		reqLogger.Info("Re-issuing cert with updated CN")
 		return r.renewCert(instance, found)
-	case !containsNames(instance.Spec.AdditionalNames, secretStatus.DnsNames):
+	case instance.Spec.PrincipalType == "host" && !containsNames(instance.Spec.AdditionalNames, secretStatus.DnsNames):
 		reqLogger.Info("Re-issuing cert with updated SANs")
 		return r.renewCert(instance, found)
 	case time.Now().After(secretStatus.Expiry.Add(-1 * settings.Instance.RenewalPeriod)):
@@ -206,9 +206,15 @@ func issueCert(cr *certv1alpha1.IpaCert) (string, string, error) {
 	}
 
 	// Generate a CSR and request a cert from IPA
-	sans := append([]string{cr.Spec.Cn}, cr.Spec.AdditionalNames...)
+	var sans []string
+	var principal string
+	if principalType == "host" {
+		sans = append([]string{cr.Spec.Cn}, cr.Spec.AdditionalNames...)
+		principal = "host/" + cr.Spec.Cn
+	} else {
+		principal = cr.Spec.Cn + "@" + settings.Instance.IpaRealm
+	}
 	csr, key := ipa.GenerateCsr(cr.Spec.Cn, sans)
-	principal := principalType + "/" + cr.Spec.Cn
 	cert, err := ipa.RequestCert(principalType, principal, csr)
 	if err != nil {
 		return "", "", err

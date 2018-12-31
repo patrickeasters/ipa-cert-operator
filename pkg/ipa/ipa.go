@@ -29,12 +29,12 @@ func GenerateCsr(cn string, sans []string) (string, string) {
 	pkey := string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(keyBytes)}))
 
 	subj := pkix.Name{
-		CommonName: "myservice.lab.easte.rs",
+		CommonName: cn,
 	}
 
 	template := x509.CertificateRequest{
 		Subject:            subj,
-		DNSNames:           append([]string{cn}, sans...),
+		DNSNames:           sans,
 		SignatureAlgorithm: x509.SHA256WithRSA,
 	}
 
