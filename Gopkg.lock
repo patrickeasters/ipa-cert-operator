@@ -329,12 +329,12 @@
   revision = "94d42526a13ea44d5721cdcfdd773b233f93cee3"
 
 [[projects]]
-  digest = "1:d9968d60bb86c9bea52d2dc1146af0022730d4291616fe032fee65f1233c4972"
+  digest = "1:fadaace143224bb658780b1637d1ec28bb61b635d79f9487e13a6c7326404518"
   name = "github.com/patrickeasters/goipa"
   packages = ["."]
   pruneopts = "NT"
-  revision = "88618d755a74bd8ea33b047ecac6248c4f646068"
-  version = "v0.0.1"
+  revision = "9f5e2dab1ca777eb53da86486fc75ba4d7c39dcd"
+  version = "v0.0.2"
 
 [[projects]]
   digest = "1:93b1d84c5fa6d1ea52f4114c37714cddd84d5b78f151b62bb101128dd51399bf"

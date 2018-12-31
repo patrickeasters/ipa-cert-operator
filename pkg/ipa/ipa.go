@@ -7,6 +7,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"net/http"
 	"time"
 
 	ipa "github.com/patrickeasters/goipa"
@@ -44,7 +45,10 @@ func GenerateCsr(cn string, sans []string) (string, string) {
 }
 
 func RequestCert(principalType, principal, csr string) (string, error) {
-	client := ipa.NewClient(settings.Instance.IpaHost, settings.Instance.IpaRealm)
+	httpClient := &http.Client{
+		Timeout: settings.Instance.IpaTimeout,
+	}
+	client := ipa.NewClientCustomHttp(settings.Instance.IpaHost, settings.Instance.IpaRealm, httpClient)
 
 	err := client.RemoteLogin(settings.Instance.IpaUser, settings.Instance.IpaPassword)
 	if err != nil {

@@ -16,7 +16,9 @@ type Settings struct {
 	CertProfileHost string
 	CertProfileUser string
 	CaChain         string
+	IpaTimeout      time.Duration
 	RequeuePeriod   time.Duration
+	RenewalPeriod   time.Duration
 }
 
 var Instance Settings
@@ -40,18 +42,29 @@ func ParseSettings() {
 		Instance.CertProfileUser = "IECUserRoles"
 	}
 
+	ipaTimeout, ok := os.LookupEnv("IPA_TIMEOUT")
+	Instance.IpaTimeout, _ = time.ParseDuration(ipaTimeout)
+	if !ok {
+		Instance.IpaTimeout = 30 * time.Second
+	}
+
 	Instance.RequeuePeriod, _ = time.ParseDuration(os.Getenv("REQUEUE_PERIOD"))
-	if Instance.RequeuePeriod.Seconds() < 30 {
+	if Instance.RequeuePeriod.Minutes() < 1 {
 		Instance.RequeuePeriod = 6 * time.Hour
+	}
+
+	Instance.RenewalPeriod, _ = time.ParseDuration(os.Getenv("RENEWAL_PERIOD"))
+	if Instance.RenewalPeriod.Minutes() < 1 {
+		Instance.RenewalPeriod = 30 * 24 * time.Hour
 	}
 
 	chain_file, ok := os.LookupEnv("CA_CHAIN_FILE")
 	if ok {
 		chain, err := ioutil.ReadFile(chain_file)
-		if err != nil {
+		if err == nil {
 			Instance.CaChain = string(chain)
 		} else {
-			log.Error(err, "Unable to read CA_CHAIN_FILE. Ignoring option.")
+			log.Error(err, "Unable to read CA_CHAIN_FILE. Ignoring option.", "Read Error", err)
 		}
 	}
 

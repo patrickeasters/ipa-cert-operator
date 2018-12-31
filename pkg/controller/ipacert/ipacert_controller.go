@@ -80,7 +80,7 @@ type ReconcileIpaCert struct {
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
 func (r *ReconcileIpaCert) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
+	reqLogger := log.WithValues("IpaCert.Namespace", request.Namespace, "IpaCert.Name", request.Name)
 	reqLogger.Info("Reconciling IpaCert")
 
 	// Fetch the IpaCert instance
@@ -143,13 +143,13 @@ func (r *ReconcileIpaCert) Reconcile(request reconcile.Request) (reconcile.Resul
 
 	// Let's check and see if the cert is outdated or expiring soon
 	switch {
-	case instance.Spec.Cn != instance.Status.CertData.Cn:
+	case instance.Spec.Cn != secretStatus.Cn:
 		reqLogger.Info("Re-issuing cert with updated CN")
 		return r.renewCert(instance, found)
-	case !containsNames(instance.Spec.AdditionalNames, instance.Status.CertData.DnsNames):
+	case !containsNames(instance.Spec.AdditionalNames, secretStatus.DnsNames):
 		reqLogger.Info("Re-issuing cert with updated SANs")
 		return r.renewCert(instance, found)
-	case time.Now().After(instance.Status.CertData.Expiry.Add(-2 * time.Minute)):
+	case time.Now().After(secretStatus.Expiry.Add(-1 * settings.Instance.RenewalPeriod)):
 		reqLogger.Info("Renewing cert because it expires soon.")
 		return r.renewCert(instance, found)
 	}
