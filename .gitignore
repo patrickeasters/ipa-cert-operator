@@ -1,6 +1,9 @@
 # Temporary Build Files
 build/_output
 build/_test
+# Non-example Configs
+deploy/config/config.yaml
+deploy/config/credentials.yaml
 # Created by https://www.gitignore.io/api/go,vim,emacs,visualstudiocode
 ### Emacs ###
 # -*- mode: gitignore; -*-

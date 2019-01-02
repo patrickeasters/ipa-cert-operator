@@ -13,6 +13,13 @@ spec:
         name: ipa-cert-operator
     spec:
       serviceAccountName: ipa-cert-operator
+      volumes:
+        - name: ipa-ca
+          configMap:
+            name: ipa-config
+            items:
+              - key: CA_CHAIN
+                path: ca-chain.crt
       containers:
         - name: ipa-cert-operator
           # Replace this with the built image name
@@ -31,6 +38,14 @@ spec:
             initialDelaySeconds: 4
             periodSeconds: 10
             failureThreshold: 1
+          volumeMounts:
+            - name: ipa-ca
+              mountPath: /ipa
+          envFrom:
+            - configMapRef:
+                name: ipa-config
+            - secretRef:
+                name: ipa-credentials
           env:
             - name: WATCH_NAMESPACE
               valueFrom:
@@ -42,3 +57,5 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "ipa-cert-operator"
+            - name: CA_CHAIN_FILE
+              value: /ipa/ca-chain.crt

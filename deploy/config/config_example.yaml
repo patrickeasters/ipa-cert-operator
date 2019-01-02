@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipa-config
+data:
+  # IPA hostname and realm
+  IPA_HOST: ipa.lab.easte.rs
+  IPA_REALM: lab.easte.rs
+  # Timeout for IPA API calls
+  IPA_TIMEOUT: 30s
+  # IPA Certificate profiles for host and user certs
+  CERT_PROFILE_HOST: caIPAserviceCert
+  CERT_PROFILE_USER: IECUserRoles
+  # Requeue period determines how often the Operator checks certs for renewal
+  REQUEUE_PERIOD: 6h
+  # Renewal period determines how soon to expiration a cert is renewed
+  RENEWAL_PERIOD: 720h
+  # CA chain to be appended to generated certs
+  CA_CHAIN: |-
+    -----BEGIN CERTIFICATE-----
+    MIID2DCCAsCgAwIBAgIJAJYLdoHmsxZYMA0GCSqGSIb3DQEBCwUAMHkxCzAJBgNV
+    BAYTAlVTMRcwFQYDVQQIDA5Ob3J0aCBDYXJvbGluYTENMAsGA1UEBwwEQXBleDEY
+    MBYGA1UECgwPUGF0cmljayBFYXN0ZXJzMQswCQYDVQQLDAJDQTEbMBkGA1UEAwwS
+    UGF0cmljayBFYXN0ZXJzIENBMB4XDTE3MDIwNjAyNTMyNFoXDTM3MDIwMTAyNTMy
+    NFoweTELMAkGA1UEBhMCVVMxFzAVBgNVBAgMDk5vcnRoIENhcm9saW5hMQ0wCwYD
+    VQQHDARBcGV4MRgwFgYDVQQKDA9QYXRyaWNrIEVhc3RlcnMxCzAJBgNVBAsMAkNB
+    MRswGQYDVQQDDBJQYXRyaWNrIEVhc3RlcnMgQ0EwggEiMA0GCSqGSIb3DQEBAQUA
+    A4IBDwAwggEKAoIBAQDkK22k7UYQ+Y3jGHSUtM56LSh+qBLe8MIn8ep5xVYqBKtL
+    ROBgu26frQMmJ/8NamXsKolovuheTbnG2vRQ1FoOMERzzGjtghMEAvht8eIGPSmk
+    PLhrhQoAvq9/cSDS6qKlb4kBFPsvuCXL2ub0FS0/ApojcFEsALch1WLxdVQ0jZ05
+    CGsyuaRwfhtcM3gdidMQwU2tNrmkGlYWxWScVrjVVJ5UunsONSzE7mGY9MRuOeAj
+    eHoa7ziHcrTDIHryqp25vSe7vqnsop8+pVxuR25sMqPQ64JT6N0NpD/nXycCSyIZ
+    5VJEMibJuQKuustk3H+6O9CfIrbwevNYG22ns34HAgMBAAGjYzBhMB0GA1UdDgQW
+    BBSM+d9eXupRTzvEVXi1kwNHNdLEKTAfBgNVHSMEGDAWgBSM+d9eXupRTzvEVXi1
+    kwNHNdLEKTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBhjANBgkqhkiG
+    9w0BAQsFAAOCAQEAiDGUXsgCMNWQi4lTvHrfkvknOX1wx8Hx7GA7jOniHANgGOep
+    g88tIQ2BQf8XSCJAPg7DH8/DZXCbFZ1auP+Ipr5+tg13DUtNyJIpQQ1Z9VPyXTmR
+    rMbo4Wy8CdXkx+nFr0sCfnMIcVNQZxbMEz/+r5LYnIn0/XPHoUMHJsEjvRJPBDIV
+    oPiRu/IGBFe01RTSKPcUHu/3G1XfHCE+QlPgvNoTeSfFUpb/5H62U/oXWGzxSi1Z
+    wFUfb7StgE66ZLv9PdMHUKI1kr5MY/+5zxzp4ICMthBLIMX0g9MYMZKa/WIi6s/J
+    Hw15XwSDS6c1xLpb3Ks0LYtarKG2tPXB1MtKxw==
+    -----END CERTIFICATE-----

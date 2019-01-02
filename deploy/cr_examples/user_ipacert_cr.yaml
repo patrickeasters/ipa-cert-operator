@@ -1,0 +1,7 @@
+apiVersion: cert.patrickeasters.com/v1alpha1
+kind: IpaCert
+metadata:
+  name: sa1
+spec:
+  type: user
+  cn: sa1

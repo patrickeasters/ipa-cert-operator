@@ -1,6 +1,9 @@
 apiVersion: cert.patrickeasters.com/v1alpha1
 kind: IpaCert
 metadata:
-  name: example1
+  name: myservice
 spec:
+  type: host
   cn: myservice.lab.easte.rs
+  AdditionalNames:
+    - myservice.easte.rs
