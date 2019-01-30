@@ -90,7 +90,7 @@ oc create -f deploy/role_binding.yaml
 Configure the IpaCert CRD:
 
 ```sh
-oc create -f deploy/crd.yaml
+oc create -f deploy/cert_v1alpha1_crd.yaml
 ```
 
 Update config and credentials:
