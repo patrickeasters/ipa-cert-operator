@@ -44,23 +44,27 @@ func GenerateCsr(cn string, sans []string) (string, string) {
 	return csr, pkey
 }
 
-func RequestCert(principalType, principal, csr string) (string, error) {
-	httpClient := &http.Client{
-		Timeout: settings.Instance.IpaTimeout,
-	}
-	client := ipa.NewClientCustomHttp(settings.Instance.IpaHost, settings.Instance.IpaRealm, httpClient)
-
-	err := client.RemoteLogin(settings.Instance.IpaUser, settings.Instance.IpaPassword)
+func RequestCert(principalType, cn, csr string) (string, error) {
+	client, err := initClient()
 	if err != nil {
 		return "", err
 	}
 
-	var profile string
+	var profile, principal string
 	switch principalType {
 	case "host":
 		profile = settings.Instance.CertProfileHost
+		principal = "host/" + cn
 	case "user":
 		profile = settings.Instance.CertProfileUser
+		principal = cn + "@" + settings.Instance.IpaRealm
+	}
+
+	if principalType == "host" && settings.Instance.HostAutoCreate {
+		err = ensureHost(client, cn)
+		if err != nil {
+			return "", fmt.Errorf("Unable to ensure host exists: %s", err)
+		}
 	}
 
 	// Request the cert from IPA
@@ -99,4 +103,26 @@ func CertStatus(cert string) (*certv1alpha1.IpaCertData, error) {
 		Expiry:   metav1.Time{Time: pub.NotAfter},
 	}
 	return &data, nil
+}
+
+func initClient() (*ipa.Client, error) {
+	httpClient := &http.Client{
+		Timeout: settings.Instance.IpaTimeout,
+	}
+	client := ipa.NewClientCustomHttp(settings.Instance.IpaHost, settings.Instance.IpaRealm, httpClient)
+	err := client.RemoteLogin(settings.Instance.IpaUser, settings.Instance.IpaPassword)
+	return client, err
+}
+
+func ensureHost(c *ipa.Client, fqdn string) error {
+	_, err := c.HostShow(fqdn)
+
+	// Bail if host already exists
+	// TODO: may be able to parse the error better
+	if err == nil {
+		return nil
+	}
+
+	_, err = c.HostAdd(fqdn, "Created by ipa-cert-operator", true)
+	return err
 }

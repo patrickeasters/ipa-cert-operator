@@ -207,15 +207,11 @@ func issueCert(cr *certv1alpha1.IpaCert) (string, string, error) {
 
 	// Generate a CSR and request a cert from IPA
 	var sans []string
-	var principal string
 	if principalType == "host" {
 		sans = append([]string{cr.Spec.Cn}, cr.Spec.AdditionalNames...)
-		principal = "host/" + cr.Spec.Cn
-	} else {
-		principal = cr.Spec.Cn + "@" + settings.Instance.IpaRealm
 	}
 	csr, key := ipa.GenerateCsr(cr.Spec.Cn, sans)
-	cert, err := ipa.RequestCert(principalType, principal, csr)
+	cert, err := ipa.RequestCert(principalType, cr.Spec.Cn, csr)
 	if err != nil {
 		return "", "", err
 	}

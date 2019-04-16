@@ -131,8 +131,7 @@ func (r *ReconcileRoute) Reconcile(request reconcile.Request) (reconcile.Result,
 func (r *ReconcileRoute) renewCert(route *routev1.Route) (reconcile.Result, error) {
 	// Generate a CSR and request a cert from IPA
 	csr, key := ipa.GenerateCsr(route.Spec.Host, []string{route.Spec.Host})
-	principal := "host/" + route.Spec.Host
-	cert, err := ipa.RequestCert("host", principal, csr)
+	cert, err := ipa.RequestCert("host", route.Spec.Host, csr)
 	if err != nil {
 		return r.returnError(route, err)
 	}

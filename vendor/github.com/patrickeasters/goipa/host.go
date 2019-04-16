@@ -17,7 +17,7 @@ type HostRecord struct {
 	HasPassword bool      `json:"has_password"`
 }
 
-// Fetch user details by call the FreeIPA user-show method
+// Fetch host details by calling the FreeIPA host-show method
 func (c *Client) HostShow(fqdn string) (*HostRecord, error) {
 
 	options := map[string]interface{}{
@@ -25,6 +25,29 @@ func (c *Client) HostShow(fqdn string) (*HostRecord, error) {
 
 	res, err := c.rpc("host_show", []string{fqdn}, options)
 
+	if err != nil {
+		return nil, err
+	}
+
+	var hostRec HostRecord
+	err = json.Unmarshal(res.Result.Data, &hostRec)
+	if err != nil {
+		return nil, err
+	}
+
+	return &hostRec, nil
+}
+
+// HostAdd creates a new host record
+func (c *Client) HostAdd(fqdn, description string, skip_dns bool) (*HostRecord, error) {
+	var options = map[string]interface{}{
+		"force": skip_dns}
+
+	if len(description) > 0 {
+		options["description"] = description
+	}
+
+	res, err := c.rpc("host_add", []string{fqdn}, options)
 	if err != nil {
 		return nil, err
 	}

@@ -3,6 +3,7 @@ package settings
 import (
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
@@ -19,6 +20,7 @@ type Settings struct {
 	IpaTimeout      time.Duration
 	RequeuePeriod   time.Duration
 	RenewalPeriod   time.Duration
+	HostAutoCreate  bool
 }
 
 var Instance Settings
@@ -57,6 +59,8 @@ func ParseSettings() {
 	if Instance.RenewalPeriod.Minutes() < 1 {
 		Instance.RenewalPeriod = 30 * 24 * time.Hour
 	}
+
+	Instance.HostAutoCreate, _ = strconv.ParseBool(os.Getenv("HOST_AUTO_CREATE"))
 
 	chain_file, ok := os.LookupEnv("CA_CHAIN_FILE")
 	if ok {
