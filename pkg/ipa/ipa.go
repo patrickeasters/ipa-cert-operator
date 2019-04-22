@@ -44,7 +44,7 @@ func GenerateCsr(cn string, sans []string) (string, string) {
 	return csr, pkey
 }
 
-func RequestCert(principalType, cn, csr string) (string, error) {
+func RequestCert(principalType, cn, csr string, sans []string) (string, error) {
 	client, err := initClient()
 	if err != nil {
 		return "", err
@@ -61,9 +61,11 @@ func RequestCert(principalType, cn, csr string) (string, error) {
 	}
 
 	if principalType == "host" && settings.Instance.HostAutoCreate {
-		err = ensureHost(client, cn)
-		if err != nil {
-			return "", fmt.Errorf("Unable to ensure host exists: %s", err)
+		for _, name := range sans {
+			err = ensureHost(client, name)
+			if err != nil {
+				return "", fmt.Errorf("Unable to ensure host exists: %s", err)
+			}
 		}
 	}
 

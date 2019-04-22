@@ -211,7 +211,7 @@ func issueCert(cr *certv1alpha1.IpaCert) (string, string, error) {
 		sans = append([]string{cr.Spec.Cn}, cr.Spec.AdditionalNames...)
 	}
 	csr, key := ipa.GenerateCsr(cr.Spec.Cn, sans)
-	cert, err := ipa.RequestCert(principalType, cr.Spec.Cn, csr)
+	cert, err := ipa.RequestCert(principalType, cr.Spec.Cn, csr, sans)
 	if err != nil {
 		return "", "", err
 	}
